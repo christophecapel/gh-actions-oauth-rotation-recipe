@@ -1,0 +1,133 @@
+name: OAuth Token Rotation (example)
+
+# This workflow shows the full pattern:
+#   1. Refresh the OAuth access + refresh tokens
+#   2. Persist the new refresh token to the in-repo token file
+#   3. Update the FITBIT_REFRESH_TOKEN GitHub secret (recovery fallback)
+#   4. Do the actual work (placeholder step here)
+#   5. Commit the rotated token file and push with retry
+#
+# Adopt by:
+#   - Setting the five secrets listed in env: below
+#   - Adjusting the "Do work" step to your actual API calls
+#   - Choosing your schedule (default: every 6 hours)
+#
+# See docs/adoption.md for provider-specific configuration.
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+permissions:
+  contents: write  # Required for the workflow to commit + push the rotated token file
+  issues: write    # Optional — used by the failure-alert step
+
+concurrency:
+  group: oauth-token-rotation
+  cancel-in-progress: false
+
+jobs:
+  rotate-and-fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests pynacl
+
+      - name: Configure git
+        run: |
+          git config user.name "rotation-bot"
+          git config user.email "bot@example.com"  # CHANGE ME
+
+      - name: Rotate refresh token + do work
+        env:
+          OAUTH_TOKEN_URL: ${{ secrets.OAUTH_TOKEN_URL }}
+          OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
+          OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_CLIENT_SECRET }}
+          OAUTH_REFRESH_TOKEN: ${{ secrets.OAUTH_REFRESH_TOKEN }}
+          # GH_PAT is REQUIRED. Without it, the rotation succeeds and writes
+          # the new refresh token to the in-repo file, but the GitHub secret
+          # never gets updated. The "secret-as-fallback" recovery path
+          # (described in docs/failure-modes.md) is non-functional unless
+          # GH_PAT is wired in here.
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          # Step 1: rotate the token (writes new refresh token to file + secret)
+          ACCESS_TOKEN=$(python3 scripts/refresh_token.py --quiet)
+
+          # Step 2: use the fresh access token to do whatever work this workflow exists for
+          # Replace the line below with your actual API calls
+          echo "[work] Would call the API now with the fresh access token"
+          # curl -H "Authorization: Bearer $ACCESS_TOKEN" https://api.example.com/me
+
+      - name: Commit + push the rotated token file (with retry)
+        # Push with retry. Transient GitHub 500s on push will silently lose
+        # rotated OAuth refresh tokens (single-use, already consumed by this
+        # run's refresh) and break the chain for subsequent runs.
+        # See docs/failure-modes.md for the incident this retry protects against.
+        # Backoff: 0s, 8s, 24s. Final failure surfaces via the alert-on-failure step below.
+        run: |
+          git add .tokens.json
+          if git diff --cached --quiet; then
+            echo "[push] No token file change to commit (rotation may have been skipped)"
+            exit 0
+          fi
+          git commit -m "rotate: oauth refresh token"
+          for attempt in 1 2 3; do
+            git pull --rebase origin "${{ github.ref_name }}"
+            if git push; then
+              echo "[push] Succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "[push] Attempt $attempt failed"
+            if [ "$attempt" -lt 3 ]; then
+              sleep_for=$((attempt * 8))
+              echo "[push] Retrying in ${sleep_for}s"
+              sleep "$sleep_for"
+            fi
+          done
+          echo "[push] All 3 attempts failed — token rotation may have been lost. Review run logs and trigger manual recovery." >&2
+          exit 1
+
+      - name: Alert on failure (optional)
+        if: failure()
+        uses: actions/github-script@v7
+        env:
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const runUrl = process.env.RUN_URL;
+            const body = [
+              '## OAuth rotation workflow failed',
+              '',
+              `**Run:** ${runUrl}`,
+              '',
+              '### Likely causes',
+              '- OAuth token endpoint returned non-200 (provider down, credentials revoked, refresh token already consumed by a parallel run)',
+              '- File persistence failed (disk or permissions issue on the runner)',
+              '- git push failed 3 times (transient GitHub 500s or branch protection)',
+              '',
+              '### Recovery',
+              '1. Open the run link above and check the logs for the exact error',
+              '2. If the token endpoint rejected the refresh token: re-authenticate locally (provider-specific) and update OAUTH_REFRESH_TOKEN secret',
+              '3. If push failed 3 times: investigate GitHub status; manually trigger the workflow once GitHub is healthy',
+              '',
+              'See docs/failure-modes.md for the broader context.'
+            ].join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `OAuth rotation workflow failure — ${new Date().toISOString().split('T')[0]}`,
+              body,
+              labels: ['workflow-failure']
+            });

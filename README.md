@@ -38,13 +38,21 @@ If your API uses long-lived static tokens, you don't need this. If your access t
 
 ## Quick start
 
-Three steps:
+One command (clone, then scaffold into your repo):
 
-1. **Copy the files** (`.github/workflows/rotation.yml`, `scripts/refresh_token.py`, `scripts/update_secret.py`) into your repo
+```bash
+git clone https://github.com/christophecapel/gh-actions-oauth-rotation-recipe.git
+cd gh-actions-oauth-rotation-recipe
+./install.sh /path/to/your-repo --with-tests
+```
+
+Or copy the files by hand. Either way, three steps to live:
+
+1. **Get the files in** (the installer copies `.github/workflows/rotation.yml`, `scripts/refresh_token.py`, `scripts/update_secret.py`; `--with-tests` adds CI + tests)
 2. **Set five secrets** in your repo's Actions settings (see `docs/adoption.md`)
 3. **Adapt the workflow yaml**: change `git config user.email`, replace the "Do work" placeholder step with your actual API calls
 
-Full walkthrough in `docs/adoption.md`.
+Install options + manual steps in [`install.md`](install.md); full walkthrough in [`docs/adoption.md`](docs/adoption.md).
 
 ## Why this recipe exists
 

@@ -7,7 +7,7 @@ OAuth 2.0 refresh-token rotation with atomic persistence across three sinks:
     2. GitHub Actions secret (via update_secret.py)
     3. The repo itself (via the workflow yaml's git push step)
 
-Single-use refresh tokens (used by Fitbit, Strava, Spotify, Whoop, Oura, and many
+Single-use refresh tokens (used by Strava, Spotify, Whoop, Oura, and many
 others) require atomic handling. If the rotation succeeds but persistence to one
 of the sinks fails, the next run inherits a dead token. This script aborts on
 any persistence failure rather than returning a partially-saved access token.
@@ -15,7 +15,7 @@ any persistence failure rather than returning a partially-saved access token.
 See docs/failure-modes.md for why each sink matters and how the chain can break.
 
 Required env vars:
-    OAUTH_TOKEN_URL       Provider token endpoint (e.g. https://api.fitbit.com/oauth2/token)
+    OAUTH_TOKEN_URL       Provider token endpoint (e.g. https://www.strava.com/oauth/token)
     OAUTH_CLIENT_ID       OAuth client ID
     OAUTH_CLIENT_SECRET   OAuth client secret
     OAUTH_REFRESH_TOKEN   Current refresh token (from env, file fallback below)

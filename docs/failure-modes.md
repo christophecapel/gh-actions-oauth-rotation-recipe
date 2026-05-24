@@ -22,7 +22,7 @@ GitHub's push endpoint occasionally returns `Internal Server Error`. It's rare b
 
 **What happens without retry:**
 
-The author's Fitbit integration ran for 7 weeks of green workflow runs. Then on 2026-05-08, the workflow rotated the token (smoke + main, consuming 2 single-use tokens), got `remote: Internal Server Error` on push, and lost both fresh tokens. The next three days inherited a dead token and the workflow failed every day until the chain was manually reset by re-authentication.
+The author's Fitbit integration ran for nine weeks of green workflow runs. Then on 2026-05-08, the workflow rotated the token (smoke + main, consuming 2 single-use tokens), got `remote: Internal Server Error` on push, and lost both fresh tokens. The next three days inherited a dead token and the workflow failed every day until the chain was manually reset by re-authentication.
 
 **How this recipe addresses it:**
 
@@ -51,7 +51,7 @@ Two things:
 ## Universal lessons
 
 1. **Read the failure logs before theorising.** File mtime, last-success timestamps, anything circumstantial — leave those for second. The first run that failed almost always has the answer in its log.
-2. **A fallback you've never tested isn't a fallback.** If your recovery path can no-op silently (skip due to missing config, swallow an exception, etc.), it isn't recovery. Add an invariant log line per critical operation so silent regressions surface on day one, not week 7.
+2. **A fallback you've never tested isn't a fallback.** If your recovery path can no-op silently (skip due to missing config, swallow an exception, etc.), it isn't recovery. Add an invariant log line per critical operation so silent regressions surface on day one, not week 9.
 3. **Single-use credentials require atomic handling.** Consume the credential, persist the replacement, verify persistence — in that order. If persistence fails, abort. Don't proceed with work using an access token whose refresh token you just lost.
 
 This recipe is the implementation of the [Atomic credential persistence](https://github.com/christophecapel/claude-mechanisms/blob/main/mechanisms/09-atomic-credential-persistence.md) mechanism applied to GitHub Actions.

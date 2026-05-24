@@ -5,7 +5,11 @@
 
 > A drop-in recipe for GitHub Actions workflows that consume single-use OAuth refresh tokens.
 
-Built from a real 3-day production blackout. Most OAuth-in-Actions tutorials stop at "here's how to use a token" and don't cover single-use rotation, push retry, or fallback instrumentation. This recipe addresses all three.
+Built from a real 3-day production blackout, running unattended in production since February 2026. Most OAuth-in-Actions tutorials stop at "here's how to use a token" and don't cover single-use rotation, push retry, or fallback instrumentation. This recipe addresses all three.
+
+It works today for any provider that issues **single-use, rotating** refresh tokens — Strava, Whoop, Oura, Spotify, and others.
+
+> **Note on Fitbit + Google Health.** The original incident behind this recipe was on the Fitbit Web API, which is being deprecated in favour of the [Google Health API](https://developers.google.com/health/migration) (legacy turndown September 2026, moving to Google OAuth 2.0). New Fitbit-style integrations should plan for that migration. The single-use rotation pattern here applies to the providers above regardless; a tested Google Health / Google OAuth 2.0 variant is on the [roadmap](#roadmap).
 
 ## What's in the box
 
@@ -22,7 +26,7 @@ Built from a real 3-day production blackout. Most OAuth-in-Actions tutorials sto
 
 You need this recipe if **all** of these apply:
 
-1. You're running a GitHub Actions workflow that consumes an OAuth API (Fitbit, Strava, Whoop, Oura, Spotify, Notion, Hubspot, etc.)
+1. You're running a GitHub Actions workflow that consumes an OAuth API (Strava, Whoop, Oura, Spotify, Notion, Hubspot, and others)
 2. The API provider issues **single-use refresh tokens** with rotation (most modern providers do)
 3. You want the workflow to keep running unattended for weeks or months
 
@@ -44,7 +48,7 @@ Full walkthrough in `docs/adoption.md`.
 
 ## Why this recipe exists
 
-> 7 weeks of green workflow runs. Then a single transient `Internal Server Error` on a `git push` lost a freshly-rotated refresh token. The runner discarded its filesystem; the repo stayed at the previous (now-consumed) token. Three days of dead-token-cascade followed. Worse: the script had a "fallback to GitHub secret" recovery path written. It required `GH_PAT` in the env. The workflow yaml had never piped `GH_PAT` in. The fallback had been silently no-op since the day it was added.
+> Nine weeks of green workflow runs. Then a single transient `Internal Server Error` on a `git push` lost a freshly-rotated refresh token. The runner discarded its filesystem; the repo stayed at the previous (now-consumed) token. Three days of dead-token-cascade followed. Worse: the script had a "fallback to GitHub secret" recovery path written. It required `GH_PAT` in the env. The workflow yaml had never piped `GH_PAT` in. The fallback had been silently no-op since the day it was added.
 
 Three failure modes, all real, all in `docs/failure-modes.md`:
 
@@ -57,6 +61,10 @@ The recipe addresses all three with concrete code.
 ## Companion project
 
 This recipe is the implementation of the [Atomic credential persistence](https://github.com/christophecapel/claude-mechanisms/blob/main/mechanisms/09-atomic-credential-persistence.md) mechanism applied to GitHub Actions workflows.
+
+## Roadmap
+
+- **v0.2 — Google Health API support.** The Fitbit Web API is migrating to the [Google Health API](https://developers.google.com/health/migration) (Google OAuth 2.0, legacy turndown September 2026). Google OAuth 2.0 has a different refresh model from the single-use providers above, so this needs its own tested path — not a drop-in rename. A variant covering Google OAuth 2.0 token handling will ship once the new API stabilises (Google advises against launching before end of May 2026 while breaking changes land). Built and verified against a live integration, not bolted on untested — that's the whole point of this recipe.
 
 ## Contributing
 

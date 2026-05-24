@@ -31,7 +31,7 @@ Go to **Settings → Secrets and variables → Actions** and add five secrets:
 
 | Secret | Value | Required |
 |---|---|---|
-| `OAUTH_TOKEN_URL` | Provider's token endpoint (e.g. `https://api.fitbit.com/oauth2/token`) | yes |
+| `OAUTH_TOKEN_URL` | Provider's token endpoint (e.g. `https://www.strava.com/oauth/token`) | yes |
 | `OAUTH_CLIENT_ID` | OAuth client ID from your provider's developer console | yes |
 | `OAUTH_CLIENT_SECRET` | OAuth client secret | yes |
 | `OAUTH_REFRESH_TOKEN` | Initial refresh token from your one-time OAuth flow | yes |
@@ -56,7 +56,7 @@ This is provider-specific. You generally need to:
 2. Run a one-time OAuth flow locally to exchange an authorization code for an access token + refresh token
 3. Paste the refresh token into the `OAUTH_REFRESH_TOKEN` secret
 
-Most providers have a quick-start guide for this. Fitbit's is at https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/.
+Most providers have a quick-start guide for this — for example Strava's developer docs at https://developers.strava.com/docs/authentication/. (Fitbit's legacy guide is at https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/, but see the Fitbit migration note under provider gotchas before starting a new Fitbit integration.)
 
 After the first workflow run, the recipe takes over the rotation — you won't need to manually update `OAUTH_REFRESH_TOKEN` again unless the chain breaks.
 
@@ -87,10 +87,12 @@ If the push step fails 3 times, GitHub is having a bad day. Wait an hour and re-
 
 ## Provider-specific gotchas
 
-### Fitbit
+### Fitbit (migrating to Google Health API — read first)
+
+> ⚠️ **The Fitbit Web API is being deprecated.** It is moving to the [Google Health API](https://developers.google.com/health/migration) on Google OAuth 2.0, with the legacy API turned down in **September 2026**. Tokens do not transfer and users must re-consent. If you're starting a new integration, target Google Health, not the legacy endpoint below. Google OAuth 2.0 uses a different refresh model, so a tested Google Health variant of this recipe is on the roadmap (see README). The legacy details below still work until the turndown.
 
 - Access tokens expire in 8 hours. Refresh tokens last ~8 months by default but rotate on every use.
-- Token endpoint: `https://api.fitbit.com/oauth2/token`
+- Token endpoint (legacy): `https://api.fitbit.com/oauth2/token`
 - Auth header for token endpoint: `Authorization: Basic <base64(client_id:client_secret)>` (the recipe handles this)
 
 ### Strava

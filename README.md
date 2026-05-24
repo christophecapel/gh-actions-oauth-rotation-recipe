@@ -3,11 +3,13 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)
 
-> A drop-in recipe for GitHub Actions workflows that consume single-use OAuth refresh tokens.
+> Keep your Strava, Oura, Whoop, or Spotify GitHub Actions integration running for months without babysitting it.
 
-Built from a real 3-day production blackout, running unattended in production since February 2026. Most OAuth-in-Actions tutorials stop at "here's how to use a token" and don't cover single-use rotation, push retry, or fallback instrumentation. This recipe addresses all three.
+If you pull data from a fitness or music API on a schedule, there's a failure waiting for you that no tutorial warns about: most of these providers hand out **single-use login tokens that rotate on every call**. Miss one rotation, even once, and your integration goes dark silently. No error in your inbox. You find out days later when the data just stopped arriving.
 
-It works today for any provider that issues **single-use, rotating** refresh tokens — Strava, Whoop, Oura, Spotify, and others.
+This is a drop-in recipe that keeps the chain alive: token rotation, automatic push retry, and a log line that surfaces the moment something silently breaks. Hardened over **3+ months and 300+ commits** of daily production use.
+
+It works today for any provider that issues single-use, rotating refresh tokens — Strava, Whoop, Oura, Spotify, and others.
 
 > **Note on Fitbit + Google Health.** The original incident behind this recipe was on the Fitbit Web API, which is being deprecated in favour of the [Google Health API](https://developers.google.com/health/migration) (legacy turndown September 2026, moving to Google OAuth 2.0). New Fitbit-style integrations should plan for that migration. The single-use rotation pattern here applies to the providers above regardless; a tested Google Health / Google OAuth 2.0 variant is on the [roadmap](#roadmap).
 

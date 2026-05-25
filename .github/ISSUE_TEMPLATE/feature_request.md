@@ -7,7 +7,7 @@ labels: enhancement
 
 ## What would you add
 
-<!-- Describe the feature. Be specific — what file changes, what new behavior. -->
+<!-- Describe the feature. Be specific: what file changes, what new behavior. -->
 
 ## Why
 

@@ -18,7 +18,7 @@
 
 ## Test plan
 
-- [ ] `python3 -m unittest tests.test_refresh -v` — all green
+- [ ] `python3 -m unittest tests.test_refresh -v`: all green
 - [ ] CI green on this branch
 - [ ] If the workflow yaml changed: validated with `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/rotation.yml'))"`
 - [ ] CHANGELOG.md entry added under `## [Unreleased]`

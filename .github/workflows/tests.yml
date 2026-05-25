@@ -21,7 +21,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pip install requests pynacl
+        run: pip install requests pynacl pyyaml
 
       - name: Run tests
         run: python3 -m unittest tests.test_refresh -v

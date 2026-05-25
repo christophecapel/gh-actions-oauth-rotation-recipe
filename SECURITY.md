@@ -9,7 +9,7 @@ This repo contains executable Python and a workflow yaml pattern. Genuine securi
 - **Preferred**: GitHub's [private vulnerability reporting](https://github.com/christophecapel/gh-actions-oauth-rotation-recipe/security/advisories/new)
 - **Alternative**: DM [@christophecapel](https://github.com/christophecapel) on GitHub
 
-**Please do not open public issues for security reports.** Public issues are appropriate for bug reports, feature requests, and adoption-guide gotchas — but not vulnerabilities.
+**Please do not open public issues for security reports.** Public issues are appropriate for bug reports, feature requests, and adoption-guide gotchas: but not vulnerabilities.
 
 ## What counts as a security issue
 
@@ -21,7 +21,7 @@ This repo contains executable Python and a workflow yaml pattern. Genuine securi
 ## What is NOT a security issue
 
 - Adopters who set GH_PAT with broader scope than needed (covered in `docs/adoption.md`)
-- Adopters who commit `.tokens.json` instead of `.gitignore`-ing it (the file is intended to be committed in the example workflow; that's the whole point — the gitignore in this repo is for local-dev safety only)
+- Adopters who commit `.tokens.json` instead of `.gitignore`-ing it (the file is intended to be committed in the example workflow; that's the whole point: the gitignore in this repo is for local-dev safety only)
 - General OAuth provider security questions (those belong with the provider, not here)
 
 ## Response timeline
@@ -34,4 +34,4 @@ This repo contains executable Python and a workflow yaml pattern. Genuine securi
 
 After a fix lands, the vulnerability is disclosed via a GitHub Security Advisory and a `CHANGELOG.md` note. Reporters are credited (with permission).
 
-No bug bounty program — this is a personal-scale recipe. Reports are appreciated regardless.
+No bug bounty program: this is a personal-scale recipe. Reports are appreciated regardless.

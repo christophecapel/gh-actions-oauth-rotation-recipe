@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Something broke — workflow, script, test, or doc
+about: Something broke: workflow, script, test, or doc
 title: "[bug] "
 labels: bug
 ---
@@ -33,7 +33,7 @@ labels: bug
 
 - Python version: <!-- e.g. 3.11 -->
 - Runner: <!-- GitHub Actions / local / self-hosted -->
-- Recipe version / commit: <!-- e.g. v0.1.0 or commit SHA -->
+- Recipe version / commit: <!-- e.g. v1.0.0 or commit SHA -->
 
 ## Anything else
 

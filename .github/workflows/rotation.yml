@@ -21,7 +21,7 @@ on:
 
 permissions:
   contents: write  # Required for the workflow to commit + push the rotated token file
-  issues: write    # Optional — used by the failure-alert step
+  issues: write    # Optional: used by the failure-alert step
 
 concurrency:
   group: oauth-token-rotation
@@ -96,7 +96,7 @@ jobs:
               sleep "$sleep_for"
             fi
           done
-          echo "[push] All 3 attempts failed — token rotation may have been lost. Review run logs and trigger manual recovery." >&2
+          echo "[push] All 3 attempts failed: token rotation may have been lost. Review run logs and trigger manual recovery." >&2
           exit 1
 
       - name: Alert on failure (optional)
@@ -127,7 +127,7 @@ jobs:
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `OAuth rotation workflow failure — ${new Date().toISOString().split('T')[0]}`,
+              title: `OAuth rotation workflow failure: ${new Date().toISOString().split('T')[0]}`,
               body,
               labels: ['workflow-failure']
             });

@@ -60,14 +60,14 @@ def update_github_secret(name: str, value: str, repo: str = None, gh_pat: str = 
     """
     gh_pat = gh_pat or os.environ.get("GH_PAT")
     if not gh_pat:
-        print(f"[secret-update] WARNING: GH_PAT not set — skipping secret update for {name}.")
+        print(f"[secret-update] WARNING: GH_PAT not set: skipping secret update for {name}.")
         print("[secret-update] WARNING: the secret-as-fallback recovery path is now non-functional.")
         print("[secret-update] WARNING: see docs/failure-modes.md for why this matters.")
         return False
 
     repo = repo or os.environ.get("GITHUB_REPOSITORY")
     if not repo:
-        print(f"[secret-update] WARNING: GITHUB_REPOSITORY not set — cannot update secret {name}.")
+        print(f"[secret-update] WARNING: GITHUB_REPOSITORY not set: cannot update secret {name}.")
         return False
 
     headers = {
@@ -103,7 +103,7 @@ def update_github_secret(name: str, value: str, repo: str = None, gh_pat: str = 
         except Exception as exc:
             if attempt < 3:
                 backoff = 2 ** attempt
-                print(f"[secret-update] WARNING: attempt {attempt}/3 failed: {exc} — retrying in {backoff}s")
+                print(f"[secret-update] WARNING: attempt {attempt}/3 failed: {exc}: retrying in {backoff}s")
                 time.sleep(backoff)
             else:
                 print(f"[secret-update] WARNING: GitHub secret {name} update failed after 3 attempts: {exc}")

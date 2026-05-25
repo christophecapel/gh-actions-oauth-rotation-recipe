@@ -179,7 +179,7 @@ def refresh_access_token(
             timeout=30,
         )
         if response.status_code == 400 and i < len(tokens_to_try) - 1:
-            print("[refresh] Primary refresh token rejected (400) — retrying with fallback.")
+            print("[refresh] Primary refresh token rejected (400): retrying with fallback.")
             continue
         break
 

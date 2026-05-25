@@ -7,7 +7,7 @@
 
 If you pull data from a fitness or music API on a schedule, there's a failure waiting for you that no tutorial warns about: most of these providers hand out **single-use login tokens that rotate on every call**. Miss one rotation, even once, and your integration goes dark silently. No error in your inbox. You find out days later when the data just stopped arriving.
 
-This is a drop-in recipe that keeps the chain alive: token rotation, automatic push retry, and a log line that surfaces the moment something silently breaks. Hardened over **3+ months and 300+ commits** of daily production use.
+This is a drop-in recipe that keeps the chain alive: token rotation, automatic push retry, and a log line that surfaces the moment something silently breaks. Hardened over **three months of daily production use**, part of 2,000+ contributions building in public.
 
 It works today for any provider that issues single-use, rotating refresh tokens — Strava, Whoop, Oura, Spotify, and others.
 
@@ -70,7 +70,10 @@ The recipe addresses all three with concrete code.
 
 ## Companion project
 
-This recipe is the implementation of the [Atomic credential persistence](https://github.com/christophecapel/claude-mechanisms/blob/main/mechanisms/09-atomic-credential-persistence.md) mechanism applied to GitHub Actions workflows.
+The two lessons behind this recipe are codified in the free, open [`claude-mechanisms`](https://github.com/christophecapel/claude-mechanisms) catalog (MIT):
+
+- [#9 Atomic credential persistence](https://github.com/christophecapel/claude-mechanisms/blob/main/mechanisms/09-atomic-credential-persistence.md): persist a single-use credential before doing anything else, or abort. The principle this recipe implements.
+- [#23 Unit-test the parts, then end-to-end-test the whole](https://github.com/christophecapel/claude-mechanisms/blob/main/mechanisms/23-unit-test-parts-then-e2e-whole.md): a recovery path you've never run end-to-end is unverified. Why a silent failure can hide for weeks.
 
 ## Roadmap
 

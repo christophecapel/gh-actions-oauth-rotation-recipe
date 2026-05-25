@@ -7,9 +7,9 @@
 
 If you pull data from a fitness or music API on a schedule, there's a failure waiting for you that no tutorial warns about: most of these providers hand out **single-use login tokens that rotate on every call**. Miss one rotation, even once, and your integration goes dark silently. No error in your inbox. You find out days later when the data just stopped arriving.
 
-This is a drop-in recipe that keeps the chain alive: token rotation, automatic push retry, and a log line that surfaces the moment something silently breaks. Hardened over **3+ months and 300+ commits** of daily production use.
+This is a drop-in recipe that keeps the chain alive: token rotation, automatic push retry, and a log line that surfaces the moment something silently breaks. Hardened over **three months of daily production use**, part of 2,000+ contributions building in public.
 
-It works today for any provider that issues single-use, rotating refresh tokens — Strava, Whoop, Oura, Spotify, and others.
+It works today for any provider that issues single-use, rotating refresh tokens: Strava, Whoop, Oura, Spotify, and others.
 
 > **Note on Fitbit + Google Health.** The original incident behind this recipe was on the Fitbit Web API, which is being deprecated in favour of the [Google Health API](https://developers.google.com/health/migration) (legacy turndown September 2026, moving to Google OAuth 2.0). New Fitbit-style integrations should plan for that migration. The single-use rotation pattern here applies to the providers above regardless; a tested Google Health / Google OAuth 2.0 variant is on the [roadmap](#roadmap).
 
@@ -20,8 +20,8 @@ It works today for any provider that issues single-use, rotating refresh tokens 
 | `.github/workflows/rotation.yml` | Workflow yaml with the full pattern: refresh → persist → secret update → do work → commit + push with retry |
 | `scripts/refresh_token.py` | Provider-agnostic OAuth refresh + atomic persistence to all sinks (file + secret) |
 | `scripts/update_secret.py` | GitHub Actions secret update helper using pynacl (the easy-to-skip "fallback" wiring) |
-| `docs/failure-modes.md` | What breaks if you don't do this — three concrete failure modes from a real incident |
-| `docs/adoption.md` | How to add this to your repo — env vars, secrets, provider-specific gotchas |
+| `docs/failure-modes.md` | What breaks if you don't do this: three concrete failure modes from a real incident |
+| `docs/adoption.md` | How to add this to your repo: env vars, secrets, provider-specific gotchas |
 | `tests/test_refresh.py` | Tests covering the happy path, the abort-on-persistence-failure path, and the fallback path |
 
 ## When to use this
@@ -70,11 +70,14 @@ The recipe addresses all three with concrete code.
 
 ## Companion project
 
-This recipe is the implementation of the [Atomic credential persistence](https://github.com/christophecapel/claude-mechanisms/blob/main/mechanisms/09-atomic-credential-persistence.md) mechanism applied to GitHub Actions workflows.
+The two lessons behind this recipe are codified in the free, open [`claude-mechanisms`](https://github.com/christophecapel/claude-mechanisms) catalog (MIT):
+
+- [#9 Atomic credential persistence](https://github.com/christophecapel/claude-mechanisms/blob/main/mechanisms/09-atomic-credential-persistence.md): persist a single-use credential before doing anything else, or abort. The principle this recipe implements.
+- [#23 Unit-test the parts, then end-to-end-test the whole](https://github.com/christophecapel/claude-mechanisms/blob/main/mechanisms/23-unit-test-parts-then-e2e-whole.md): a recovery path you've never run end-to-end is unverified. Why a silent failure can hide for weeks.
 
 ## Roadmap
 
-- **v0.2 — Google Health API support.** The Fitbit Web API is migrating to the [Google Health API](https://developers.google.com/health/migration) (Google OAuth 2.0, legacy turndown September 2026). Google OAuth 2.0 has a different refresh model from the single-use providers above, so this needs its own tested path — not a drop-in rename. A variant covering Google OAuth 2.0 token handling will ship once the new API stabilises (Google advises against launching before end of May 2026 while breaking changes land). Built and verified against a live integration, not bolted on untested — that's the whole point of this recipe.
+- **v0.2: Google Health API support.** The Fitbit Web API is migrating to the [Google Health API](https://developers.google.com/health/migration) (Google OAuth 2.0, legacy turndown September 2026). Google OAuth 2.0 has a different refresh model from the single-use providers above, so this needs its own tested path, not a drop-in rename. A variant covering Google OAuth 2.0 token handling will ship once the new API stabilises (Google advises against launching before end of May 2026 while breaking changes land). Built and verified against a live integration, not bolted on untested. That's the whole point of this recipe.
 
 ## Contributing
 
